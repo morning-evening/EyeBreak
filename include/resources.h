@@ -1,0 +1,6 @@
+#ifndef RESOURCES_H_INCLUDED
+#define RESOURCES_H_INCLUDED
+
+#define IDI_TRAY 101
+
+#endif

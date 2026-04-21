@@ -1,0 +1,28 @@
+# EyeBreak - Git 忽略规则
+# 保留源码、构建脚本及最终编译产物(dist/)，忽略中间产物和临时文件
+
+# ---- 编译产物 ----
+build/   
+
+# ---- 调试/日志 ----
+eyebreak.log
+build_output*.txt
+_final_build*.txt
+
+# ---- IDE / 编辑器 ----
+.vs/
+*.user
+*.suo
+*.vcxproj*
+*.filters
+*.sln
+
+# ---- 操作系统 ----
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ---- 临时文件 ----
+*~
+*.swp
+*.swo
