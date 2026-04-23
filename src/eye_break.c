@@ -213,6 +213,7 @@ static BOOL                g_bLangEnglish     = FALSE;  /* Default: Chinese */
 static int                 g_nTickCount       = 0;
 static WCHAR               g_szExePath[MAX_PATH]  = { 0 };
 static WCHAR               g_szLogPath[MAX_PATH]  = { 0 };
+static UINT                g_msgTaskbarCreated = 0;   /* Registered "TaskbarCreated" message for Explorer restart recovery */
 
 /* ----------------------------------------------------------------
  *  Logging (debug only)
@@ -373,7 +374,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         return 1;
     }
 
-    /* 7. System tray icon */
+    /* 7. Register TaskbarCreated message (Explorer restart recovery) */
+    g_msgTaskbarCreated = RegisterWindowMessageW(L"TaskbarCreated");
+
+    /* 8. System tray icon */
     LOG(L"CreateTrayIcon");
     CreateTrayIcon(g_hWnd);
 
@@ -528,6 +532,18 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         break;
 
     default:
+        /*
+         * Explorer restart recovery: TaskbarCreated is broadcast when
+         * Explorer.exe restarts (e.g. after crash, Windows restart).
+         * All previous tray icons are lost — re-add ours to restore
+         * the system-tray presence and interaction.
+         */
+        if (msg == g_msgTaskbarCreated) {
+            LOG(L"TaskbarCreated received, restoring tray icon");
+            CreateTrayIcon(g_hWnd);
+            UpdateTrayTooltip();
+            break;
+        }
         return DefWindowProcW(hWnd, msg, wParam, lParam);
     }
     return 0;
