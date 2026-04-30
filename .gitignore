@@ -11,6 +11,7 @@ _final_build*.txt
 
 # ---- IDE / 编辑器 ----
 .vs/
+.idea/
 *.user
 *.suo
 *.vcxproj*
@@ -26,3 +27,6 @@ Desktop.ini
 *~
 *.swp
 *.swo
+
+# ---- 内部需求文档（禁止提交） ----
+REQUIREMENTS.md
