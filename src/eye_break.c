@@ -2,7 +2,7 @@
  * EyeBreak - 定时护眼提醒工具
  *
  * 每 20 分钟通过 Windows 托盘气泡通知提醒用户休息。
- * 检测锁屏/解锁事件自动重置计时器。
+ * 锁屏时暂停并重置计时，解锁后恢复计时。
  * 支持开机自启（HKCU\Run）、单实例运行、中英文界面切换。
  *
  * Build:
@@ -487,12 +487,14 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         case IDM_STOP_REMINDER:
             g_bReminderEnabled = FALSE;
             g_nTickCount = 0;
+            KillTimer(g_hWnd, TIMER_ID_MAIN);
             LOG(L"Reminder stopped");
             UpdateTrayTooltip();
             break;
         case IDM_START_REMINDER:
             g_bReminderEnabled = TRUE;
             g_nTickCount = 0;
+            SetTimer(g_hWnd, TIMER_ID_MAIN, 1000, NULL);
             LOG(L"Reminder started");
             UpdateTrayTooltip();
             break;
@@ -519,11 +521,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
     case WM_WTSSESSION_CHANGE:
         if (!g_bReminderEnabled) break;
-        if (wParam == WTS_SESSION_LOCK || wParam == WTS_SESSION_UNLOCK) {
-            LOG(L"Session %s, reset counter",
-                (wParam == WTS_SESSION_LOCK) ? L"LOCK" : L"UNLOCK");
+        if (wParam == WTS_SESSION_LOCK) {
+            LOG(L"Session LOCK, kill timer");
+            KillTimer(g_hWnd, TIMER_ID_MAIN);
             g_nTickCount = 0;
-            UpdateTrayTooltip();
+        }
+        else if (wParam == WTS_SESSION_UNLOCK) {
+            LOG(L"Session UNLOCK, restart timer");
+            g_nTickCount = 0;
+            SetTimer(g_hWnd, TIMER_ID_MAIN, 1000, NULL);
         }
         break;
 
