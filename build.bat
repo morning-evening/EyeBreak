@@ -25,6 +25,8 @@ if errorlevel 1 (
 
 cd /d "%~dp0"
 
+taskkill /f /im EyeBreak.exe >nul 2>&1
+
 echo ========================================
 echo   EyeBreak Release Build
 echo ========================================
