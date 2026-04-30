@@ -1,14 +1,14 @@
 # ============================================================
 # EyeBreak - Makefile
 #
-# 用法：
-#   make          — Release 编译（无日志，优化级别 O2）
-#   make debug    — Debug 编译（启用日志输出到 log/）
-#   make clean    — 清理编译产物
+# Usage:
+#   make          — Release build (no logging, optimization O2)
+#   make debug    — Debug build (logging enabled to log/)
+#   make clean    — Clean build artifacts
 #
-# 前提：
-#   - Visual Studio 2022 已安装（vcvars64.bat）
-#   - 或 MSVC 命令行环境已配置
+# Prerequisites:
+#   - Visual Studio 2022 installed (vcvars64.bat)
+#   - Or MSVC command-line environment configured
 # ============================================================
 
 .PHONY: all debug clean

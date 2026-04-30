@@ -1,16 +1,16 @@
-# EyeBreak - Git 忽略规则
-# 保留源码、构建脚本，忽略中间产物、临时文件和编译产物
+# EyeBreak - Git Ignore Rules
+# Keep source code and build scripts, ignore intermediate artifacts, temp files, and build output
 
-# ---- 编译产物 ----
+# ---- Build Output ----
 build/   
 dist/
 
-# ---- 调试/日志 ----
+# ---- Debug/Logging ----
 eyebreak.log
 build_output*.txt
 _final_build*.txt
 
-# ---- IDE / 编辑器 ----
+# ---- IDE / Editor ----
 .vs/
 .idea/
 *.user
@@ -19,15 +19,15 @@ _final_build*.txt
 *.filters
 *.sln
 
-# ---- 操作系统 ----
+# ---- Operating System ----
 Thumbs.db
 Desktop.ini
 .DS_Store
 
-# ---- 临时文件 ----
+# ---- Temporary Files ----
 *~
 *.swp
 *.swo
 
-# ---- 内部需求文档（禁止提交） ----
+# ---- Documentation ----
 REQUIREMENTS.md
