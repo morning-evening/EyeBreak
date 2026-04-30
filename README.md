@@ -50,7 +50,7 @@ EyeBreak implements exactly this — one timer, one notification, nothing else.
 ## Features
 
 - **20-min timer** — balloon notification when time's up
-- **Lock-screen aware** — resets counter on lock/unlock via WTS API
+- **Lock-screen aware** — pauses and resets timer on lock, resumes on unlock via WTS API
 - **Tray tooltip** — hover shows MM:SS countdown
 - **Auto-start** — optional boot via HKCU\Run registry
 - **Bilingual UI** — Chinese / English, switch from tray menu, persists across restarts
@@ -185,7 +185,7 @@ A console program cannot receive Windows messages (tray callbacks, session notif
 
 ### Session Detection (WTS)
 
-Uses `WTSRegisterSessionNotification` (`WM_WTSSESSION_CHANGE`) for lock/unlock detection — OS-native event-driven approach with zero polling cost.
+Uses `WTSRegisterSessionNotification` (`WM_WTSSESSION_CHANGE`) for lock/unlock detection — pauses and resets timer on lock, resumes on unlock. OS-native event-driven approach with zero polling cost.
 
 ### Security Software Interception
 

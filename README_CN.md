@@ -50,7 +50,7 @@ EyeBreak 只做一件事：到点提醒你抬头。
 ## 功能特性
 
 - **20 分钟定时** — 到时弹出气泡通知
-- **锁屏感知** — 锁屏/解锁自动重置计时器（WTS API）
+- **锁屏感知** — 锁屏时暂停并重置计时，解锁后恢复计时（WTS API）
 - **实时倒计时** — 鼠标悬停托盘图标显示 MM:SS
 - **开机自启** — 可选，通过注册表 HKCU\Run 管理
 - **中英文界面** — 右键菜单切换，重启后保留语言偏好
@@ -185,7 +185,7 @@ EyeBreak/
 
 ### 会话检测（WTS）
 
-使用 `WTSRegisterSessionNotification`（`WM_WTSSESSION_CHANGE`）检测锁屏/解锁——操作系统原生事件驱动方案，零轮询开销。
+使用 `WTSRegisterSessionNotification`（`WM_WTSSESSION_CHANGE`）检测锁屏/解锁——锁屏时暂停并重置计时，解锁后恢复。操作系统原生事件驱动方案，零轮询开销。
 
 ### 安全软件拦截处理
 
