@@ -1,9 +1,9 @@
 /*
- * EyeBreak - 定时护眼提醒工具
+ * EyeBreak - Eye Rest Reminder for Windows
  *
- * 每 20 分钟通过 Windows 托盘气泡通知提醒用户休息。
- * 锁屏时暂停并重置计时，解锁后恢复计时。
- * 支持开机自启（HKCU\Run）、单实例运行、中英文界面切换。
+ * A minimal system tray tool that reminds you to rest your eyes every 20 minutes.
+ * Pauses timer on workstation lock and resumes on unlock.
+ * Features: auto-start (HKCU\Run), single instance, bilingual UI (CN/EN).
  *
  * Build:
  *   rc.exe /I include res\resources.rc
@@ -418,6 +418,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
  *  Window / Message handling
  * ---------------------------------------------------------------- */
 
+/**
+ * @brief Create the hidden message-only window.
+ *
+ * Registers a message-only window that receives tray callbacks and
+ * session notifications. The window is never shown to the user.
+ *
+ * @param hInstance Application instance handle (unused).
+ * @return TRUE on success, FALSE on failure.
+ */
 static BOOL InitInstance(HINSTANCE hInstance)
 {
     (void)hInstance;
@@ -437,6 +446,22 @@ static BOOL InitInstance(HINSTANCE hInstance)
     return TRUE;
 }
 
+/**
+ * @brief Main window procedure handling all messages.
+ *
+ * Processes:
+ * - WM_TIMER: Count down and trigger reminders
+ * - WM_USER_TRAY: Tray icon events (click, context menu)
+ * - WM_WTSSESSION_CHANGE: Lock/unlock screen detection
+ * - WM_COMMAND: Menu item selections
+ * - WM_DESTROY: Cleanup and exit
+ *
+ * @param hWnd   Window handle.
+ * @param msg    Message code.
+ * @param wParam Message-specific parameter.
+ * @param lParam Message-specific parameter.
+ * @return LRESULT Message processing result.
+ */
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg) {
@@ -559,6 +584,14 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
  *  System tray
  * ---------------------------------------------------------------- */
 
+/**
+ * @brief Create and register the system tray icon.
+ *
+ * Loads the tray icon from resources, sets up the NOTIFYICONDATA structure,
+ * and registers for session change notifications (lock/unlock).
+ *
+ * @param hWnd Owner window handle for tray icon messages.
+ */
 static void CreateTrayIcon(HWND hWnd)
 {
     g_hIcon = LoadIconW(g_hInst, MAKEINTRESOURCEW(IDI_TRAY));
@@ -580,6 +613,11 @@ static void CreateTrayIcon(HWND hWnd)
     }
 }
 
+/**
+ * @brief Remove the system tray icon and unregister notifications.
+ *
+ * Cleans up the tray icon and session notification registration.
+ */
 static void DestroyTrayIcon(void)
 {
     WTSUnRegisterSessionNotification(g_hWnd);
@@ -594,6 +632,12 @@ static void DestroyTrayIcon(void)
  *  Tooltip
  * ---------------------------------------------------------------- */
 
+/**
+ * @brief Update the tray icon tooltip with current status.
+ *
+ * Shows "Stopped" when reminders are disabled, or a countdown
+ * timer (MM:SS) when active.
+ */
 static void UpdateTrayTooltip(void)
 {
     WCHAR tip[128];
@@ -619,6 +663,19 @@ static void UpdateTrayTooltip(void)
  *
  * Auto-start state and language are read fresh each time so the
  * menu always reflects current reality.
+ */
+
+/**
+ * @brief Build the right-click context menu.
+ *
+ * Creates a popup menu with:
+ * - Test notification
+ * - Start/Stop reminder toggle
+ * - Auto-start toggle
+ * - Language switch
+ * - Exit
+ *
+ * @return HMENU Handle to the created menu, or NULL on failure.
  */
 static HMENU BuildMenu(void)
 {
@@ -651,6 +708,11 @@ static HMENU BuildMenu(void)
     return hMenu;
 }
 
+/**
+ * @brief Show the context menu at cursor position.
+ *
+ * @param hWnd Window handle for menu ownership.
+ */
 static void ShowTrayMenu(HWND hWnd)
 {
     POINT pt;
@@ -670,6 +732,13 @@ static void ShowTrayMenu(HWND hWnd)
 
 /*
  * SendReminder - Show a balloon tooltip on the tray icon.
+ */
+
+/**
+ * @brief Send a balloon notification reminder.
+ *
+ * Displays a 20-20-20 rule reminder in the system tray.
+ * Notification language matches the current UI language setting.
  */
 static void SendReminder(void)
 {
@@ -691,6 +760,15 @@ static void SendReminder(void)
  *  Auto-start (Registry HKCU\Run)
  * ---------------------------------------------------------------- */
 
+/**
+ * @brief Check if auto-start is currently enabled.
+ *
+ * Reads the registry to verify if EyeBreak is registered
+ * in HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+ * and if the path matches the current executable.
+ *
+ * @return TRUE if auto-start is enabled with correct path.
+ */
 static BOOL IsAutoStartEnabled(void)
 {
     HKEY hKey;
@@ -710,6 +788,14 @@ static BOOL IsAutoStartEnabled(void)
     return FALSE;
 }
 
+/**
+ * @brief Enable or disable auto-start on Windows boot.
+ *
+ * Adds or removes EyeBreak from the registry Run key.
+ * Shows an error message if registry access fails.
+ *
+ * @param enable TRUE to enable auto-start, FALSE to disable.
+ */
 static void SetAutoStart(BOOL enable)
 {
     HKEY hKey;
@@ -754,6 +840,12 @@ static void SetAutoStart(BOOL enable)
  * LoadLanguagePref - Read language from HKCU\Software\EyeBreak\Language.
  * Returns FALSE (Chinese) if the key doesn't exist — default to Chinese.
  */
+
+/**
+ * @brief Load the saved language preference from registry.
+ *
+ * @return TRUE if English is preferred, FALSE for Chinese (default).
+ */
 static BOOL LoadLanguagePref(void)
 {
     HKEY hKey;
@@ -773,6 +865,12 @@ static BOOL LoadLanguagePref(void)
 /*
  * SaveLanguagePref - Write language preference to registry.
  * Creates the key if it doesn't exist.
+ */
+
+/**
+ * @brief Save the language preference to registry.
+ *
+ * @param english TRUE for English, FALSE for Chinese.
  */
 static void SaveLanguagePref(BOOL english)
 {
