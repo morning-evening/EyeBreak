@@ -5,7 +5,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows_7%2B-blue)](https://www.microsoft.com/windows)
 [![Language](https://img.shields.io/badge/C-Win32_API-purple)](https://docs.microsoft.com/cpp/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![Size](https://img.shields.io/badge/Size-144KB-orange)](#)
+[![Size](https://img.shields.io/badge/Size-134KB-orange)](#)
 
 ---
 
@@ -13,7 +13,7 @@
 
 | | |
 |---|---|
-| **Size** | **~144 KB** — single executable, no installer, no dependencies |
+| **Size** | **~134 KB** — single executable, no installer, no dependencies |
 | **Memory** | ~2 MB RAM at runtime |
 | **Language** | C (Win32 API) |
 | **OS** | Windows 7 SP1+ (x64) |
@@ -63,7 +63,7 @@ EyeBreak implements exactly this — one timer, one notification, nothing else.
 
 Get the latest release from **[GitHub Releases](https://github.com/morning-evening/EyeBreak/releases)**.
 
-- Single file: `EyeBreak.exe` (~146 KB)
+- Single file: `EyeBreak.exe` (~134 KB)
 - No installer, no dependencies
 - Just download and double-click to run
 
@@ -82,7 +82,7 @@ Get the latest release from **[GitHub Releases](https://github.com/morning-eveni
 ┌──────────────────────┐
 │ Test Notification    │
 │ Stop Reminder        │
-│ * Auto-start (ON)    │
+│ ✓ Auto-start (ON)    │
 │ ────────────────── │
 │ 切换到中文            │   ← Switch language (persists)
 │ ────────────────── │

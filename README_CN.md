@@ -5,7 +5,7 @@
 [![平台](https://img.shields.io/badge/平台-Windows_7%2B-blue)](https://www.microsoft.com/windows)
 [![语言](https://img.shields.io/badge/语言-C_Win32_API-purple)](https://docs.microsoft.com/cpp/)
 [![协议](https://img.shields.io/badge/协议-MIT-green)](LICENSE)
-[![体积](https://img.shields.io/badge/体积-144KB-orange)](#)
+[![体积](https://img.shields.io/badge/体积-134KB-orange)](#)
 
 [**English →**](README.md)
 
@@ -15,7 +15,7 @@
 
 | | |
 |---|---|
-| **体积** | **~144 KB** — 单个可执行文件，无需安装，无外部依赖 |
+| **体积** | **~134 KB** — 单个可执行文件，无需安装，无外部依赖 |
 | **内存占用** | 运行时约 ~2 MB RAM |
 | **编程语言** | C (Win32 API) |
 | **支持系统** | Windows 7 SP1+ (64 位) |
@@ -63,7 +63,7 @@ EyeBreak 只做一件事：到点提醒你抬头。
 
 从 **[GitHub Releases](https://github.com/morning-evening/EyeBreak/releases)** 获取最新版本。
 
-- 单文件：`EyeBreak.exe`（约 146 KB）
+- 单文件：`EyeBreak.exe`（约 134 KB）
 - 无需安装，无外部依赖
 - 下载后双击即可运行
 

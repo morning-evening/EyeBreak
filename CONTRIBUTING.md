@@ -43,8 +43,8 @@ EyeBreak/
 ## Code Style
 
 - **Indentation**: 4 spaces (no tabs)
-- **Brace style**: K&R (opening brace on same line)
-- **Comments**: English, Doxygen-style for functions
+- **Brace style**: Allman (opening brace on its own line)
+- **Comments**: English, Doxygen-style (`/** ... */`) for public functions, standard (`/* ... */`) for static helpers
 - **Naming**: 
   - Functions: `PascalCase`
   - Variables: `g_` prefix for globals, `camelCase` for locals
