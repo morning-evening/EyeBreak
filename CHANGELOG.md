@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.1] - 2026-05-01
+
+### Changed
+- Improved auto-start menu display for better clarity
+- Added explicit status indicators in Chinese menu items
+- Simplified auto-start functionality by removing security software interception detection
+- Removed delayed verification timer and warning dialogs
+- Streamlined code by removing unused string resources and variables
+- Simplified error messages related to registry operations
+
+### Removed
+- Auto-start verification timer (TIMER_ID_AUTO_CHECK)
+- Security software interception warning dialogs
+- Related string resources (S_WARN_INTERCEPTED_CN, S_WARN_INTERCEPTED_EN)
+
 ## [1.0.0] - 2026-04-30
 
 ### Added

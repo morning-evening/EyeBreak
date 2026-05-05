@@ -45,10 +45,8 @@
 
 /* Timer IDs */
 #define TIMER_ID_MAIN      1
-#define TIMER_ID_AUTO_CHECK 2
 
 /* Timeouts (ms) */
-#define AUTO_CHECK_DELAY_MS  2000
 
 /* Reminder interval: 20 minutes in seconds */
 #define REMINDER_SECONDS    (20 * 60)
@@ -108,17 +106,15 @@ enum LangStringID {
     S_ERR_TRAY,
     S_ERR_REGOPEN,
     S_ERR_REGWRITE,
-    S_WARN_INTERCEPTED_CN,
-    S_WARN_INTERCEPTED_EN,
-    S__COUNT
+        S__COUNT
 };
 
 static const WCHAR *g_szCN[S__COUNT] = {
     L"发送测试通知",                          /* S_MENU_TEST      */
     L"停止提醒",                              /* S_MENU_STOP       */
     L"开始提醒",                              /* S_MENU_START      */
-    L"✓ 开机自启",                            /* S_MENU_AUTOSTART_ON*/
-    L"开机自启",                              /* S_MENU_AUTOSTART_OFF*/
+    L"✓ 开机自启：开",                        /* S_MENU_AUTOSTART_ON*/
+    L"开机自启：关",                          /* S_MENU_AUTOSTART_OFF*/
     L"退出",                                  /* S_MENU_EXIT       */
     L"Switch to English",                     /* S_MENU_LANG_EN    */
     L"切换到中文",                            /* S_MENU_LANG_CN    */
@@ -131,25 +127,8 @@ static const WCHAR *g_szCN[S__COUNT] = {
     L"注册窗口类失败。",                        /* S_ERR_REGCLASS    */
     L"创建隐藏窗口失败。",                      /* S_ERR_CREATEWND   */
     L"无法添加托盘图标。",                      /* S_ERR_TRAY        */
-    L"无法写入注册表。\n\n可能原因：\n• 安全软件拦截\n• 权限不足\n\n请在安全软件中将 EyeBreak 加入信任列表。", /* S_ERR_REGOPEN */
-    L"开机自启写入失败。\n请检查安全软件是否拦截了注册表修改。", /* S_ERR_REGWRITE */
-    L"开机自启设置未能生效。\n\n"
-    L"检测到注册表启动项在写入后被自动移除，\n"
-    L"这通常是由安全软件（如联想电脑管家、360、火绒等）的\n"
-    L"「启动项管理」功能导致的。\n\n"
-    L"建议操作：\n"
-    L"1. 打开安全软件，找到「启动项管理」或「开机加速」\n"
-    L"2. 将 EyeBreak 设为「允许启动」或加入信任列表\n"
-    L"3. 返回右键菜单重新开启开机自启",            /* S_WARN_INTERCEPTED_CN */
-    L"Auto-start was not applied.\n\n"
-    L"The registry entry was removed after being written.\n"
-    L"This is typically caused by security software\n"
-    L"(Lenovo PC Manager, 360, Huorong, etc.) managing startup items.\n\n"
-    L"To fix:\n"
-    L"1. Open your security software\n"
-    L"2. Find Startup Manager / Boot Accelerator\n"
-    L"3. Add EyeBreak to the allowed list\n"
-    L"4. Re-enable auto-start from the tray menu"    /* S_WARN_INTERCEPTED_EN */
+    L"无法写入注册表。", /* S_ERR_REGOPEN */
+    L"开机自启写入失败。", /* S_ERR_REGWRITE */
 };
 
 static const WCHAR *g_szEN[S__COUNT] = {
@@ -170,29 +149,9 @@ static const WCHAR *g_szEN[S__COUNT] = {
     L"RegisterClass failed.",
     L"CreateWindow failed.",
     L"Failed to add tray icon.",
-    L"Cannot open registry for writing.\n\n"
-    L"Possible cause:\n- Security software blocking registry access\n"
-    L"- Insufficient permissions\n\n"
-    L"Try adding EyeBreak to your security software trust list.",
-    L"Failed to write auto-start registry value.\n"
-    L"Check if security software is blocking registry changes.",
-    L"开机自启设置未能生效。\n\n"
-    L"检测到注册表启动项在写入后被自动移除，\n"
-    L"这通常是由安全软件（如联想电脑管家、360、火绒等）的\n"
-    L"「启动项管理」功能导致的。\n\n"
-    L"建议操作：\n"
-    L"1. 打开安全软件，找到「启动项管理」或「开机加速」\n"
-    L"2. 将 EyeBreak 设为「允许启动」或加入信任列表\n"
-    L"3. 返回右键菜单重新开启开机自启",
-    L"Auto-start was not applied.\n\n"
-    L"The registry entry was removed after being written.\n"
-    L"This is typically caused by security software\n"
-    L"(Lenovo PC Manager, 360, Huorong, etc.) managing startup items.\n\n"
-    L"To fix:\n"
-    L"1. Open your security software\n"
-    L"2. Find Startup Manager / Boot Accelerator\n"
-    L"3. Add EyeBreak to the allowed list\n"
-    L"4. Re-enable auto-start from the tray menu"
+    L"Cannot open registry for writing.",
+    L"Failed to write auto-start registry value.",
+
 };
 
 /* Select string by current language */
@@ -208,7 +167,7 @@ static HICON               g_hIcon            = NULL;
 static NOTIFYICONDATAW     g_nid              = { 0 };
 static BOOL                g_bReminderEnabled = TRUE;
 static BOOL                g_bAutoStart       = FALSE;
-static BOOL                g_bPendingAutoCheck = FALSE;
+
 static BOOL                g_bLangEnglish     = FALSE;  /* Default: Chinese */
 static int                 g_nTickCount       = 0;
 static WCHAR               g_szExePath[MAX_PATH]  = { 0 };
@@ -248,8 +207,9 @@ static void WriteLog(LPCWSTR fmt, ...)
 #endif /* EYEBREAK_DEBUG */
 
 /*
- * InitLog - Determine log file path and create/truncate it.
- * Log file is written to log/ subdirectory next to the executable.
+ * InitLog - Initialize logging (debug mode only).
+ * In debug mode: creates log/ directory and log file.
+ * In non-debug mode: logging is disabled.
  */
 static void InitLog(void)
 {
@@ -257,11 +217,16 @@ static void InitLog(void)
     WCHAR *p = wcsrchr(g_szExePath, L'\\');
     if (p && p > g_szExePath) {
         wcscpy_s(g_szLogPath, MAX_PATH, g_szExePath);
-        wcscpy_s(p + 1, MAX_PATH - (p + 1 - g_szLogPath), LOG_FILENAME);
+        WCHAR *pLog = wcsrchr(g_szLogPath, L'\\');
+        if (pLog) {
+            wcscpy_s(pLog + 1, MAX_PATH - (pLog + 1 - g_szLogPath), LOG_FILENAME);
+        }
     } else {
         wcscpy_s(g_szLogPath, MAX_PATH, LOG_FILENAME);
     }
 
+
+#ifdef EYEBREAK_DEBUG
     /* Ensure log/ directory exists */
     {
         WCHAR logDir[MAX_PATH];
@@ -271,7 +236,6 @@ static void InitLog(void)
         CreateDirectoryW(logDir, NULL);
     }
 
-#ifdef EYEBREAK_DEBUG
     FILE *fp;
     errno_t err = _wfopen_s(&fp, g_szLogPath, L"w");
     if (err == 0) {
@@ -285,20 +249,11 @@ static void InitLog(void)
         MessageBoxW(NULL, msg, APP_NAME, MB_ICONERROR | MB_OK);
     }
 #else
-    FILE *fp;
-    if (_wfopen_s(&fp, g_szLogPath, L"w") != 0) {
-        WCHAR *p = wcsrchr(g_szExePath, L'\\');
-        if (p && p > g_szExePath) {
-            wcscpy_s(g_szLogPath, MAX_PATH, g_szExePath);
-            wcscpy_s(p + 1, MAX_PATH - (p + 1 - g_szExePath), LOG_FILENAME);
-        }
-    } else {
-        fclose(fp);
-        DeleteFileW(g_szLogPath);
-        g_szLogPath[0] = L'\0';
-    }
+    /* Non-debug: disable logging */
+    g_szLogPath[0] = L'\0';
 #endif
 }
+
 
 /* ----------------------------------------------------------------
  *  Forward declarations
@@ -408,7 +363,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     LOG(L"Cleanup");
     DestroyTrayIcon();
     KillTimer(g_hWnd, TIMER_ID_MAIN);
-    KillTimer(g_hWnd, TIMER_ID_AUTO_CHECK);
+
     CloseHandle(hMutex);
 
     return (int)msg.wParam;
@@ -476,30 +431,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                 SendReminder();
                 g_nTickCount = 0;
             }
-        }
-        else if (wParam == TIMER_ID_AUTO_CHECK && g_bPendingAutoCheck) {
-            /*
-             * Delayed auto-start verification.
-             * Security software may delete the registry value asynchronously
-             * after RegSetValueExW returns success. We wait 2 seconds then
-             * re-read to detect such interception.
-             */
-            KillTimer(g_hWnd, TIMER_ID_AUTO_CHECK);
-            g_bPendingAutoCheck = FALSE;
-
-            BOOL actualState = IsAutoStartEnabled();
-            if (!actualState && g_bAutoStart) {
-                g_bAutoStart = FALSE;
-                LOG(L"Auto-start verification FAILED (intercepted)");
-                MessageBoxW(NULL,
-                    g_bLangEnglish ? S(S_WARN_INTERCEPTED_EN) : S(S_WARN_INTERCEPTED_CN),
-                    S(S_NOTIFY_TITLE), MB_ICONWARNING | MB_OK);
-            } else {
-                LOG(L"Auto-start verification OK");
             }
-        }
         break;
-
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
         case IDM_EXIT:
@@ -816,9 +749,7 @@ static void SetAutoStart(BOOL enable)
         }
 
         g_bAutoStart = TRUE;
-        g_bPendingAutoCheck = TRUE;
-        SetTimer(g_hWnd, TIMER_ID_AUTO_CHECK, AUTO_CHECK_DELAY_MS, NULL);
-        LOG(L"Auto-start requested, verify in %d ms", AUTO_CHECK_DELAY_MS);
+        LOG(L"Auto-start enabled");
     } else {
         LONG ret = RegDeleteValueW(hKey, REG_VAL_NAME);
         RegCloseKey(hKey);
@@ -831,6 +762,7 @@ static void SetAutoStart(BOOL enable)
         }
     }
 }
+
 
 /* ----------------------------------------------------------------
  *  Language preference persistence
